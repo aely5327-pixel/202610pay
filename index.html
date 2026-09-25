@@ -1,0 +1,504 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>烙角可麗露宅配預訂</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&display=swap');
+        
+        :root {
+            --color-bg: #F3E5D8;
+            --color-main: #8B5E3C;
+            --color-dark: #5C3D2E;
+            --color-white: #FFFFFF;
+            --color-alert: #D9534F;
+        }
+
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+        body {
+            font-family: 'Noto Sans TC', sans-serif;
+            background-color: var(--color-bg);
+            color: #333;
+            margin: 0;
+            padding-bottom: 120px;
+        }
+
+        header {
+            background-color: var(--color-dark);
+            color: white;
+            padding: 20px 15px;
+            text-align: center;
+            position: sticky;
+            top: 0;
+            z-index: 90;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        header h1 { margin: 0; font-size: 20px; letter-spacing: 2px; }
+        header p { margin: 5px 0 0; font-size: 13px; opacity: 0.9; }
+
+        .container { max-width: 800px; margin: 0 auto; padding: 15px; }
+
+        /* Notice Card */
+        .notice-card {
+            background: #FFF5F5; padding: 15px; border-radius: 10px;
+            border: 1px solid #FECACA; margin-bottom: 20px; color: #991B1B;
+            font-size: 14px; line-height: 1.6;
+        }
+        .notice-header { font-weight: bold; font-size: 15px; margin-bottom: 5px; }
+        .highlight { color: var(--color-alert); font-weight: bold; }
+
+        /* Rules Card (Shipping Info) */
+        .rules-card {
+            background: white; padding: 15px; border-radius: 10px;
+            border-left: 5px solid var(--color-main); margin-bottom: 20px;
+            font-size: 14px; color: #444; line-height: 1.8;
+        }
+        .rules-title {
+            font-weight: bold; color: var(--color-main); margin-bottom: 8px; font-size: 16px;
+            border-bottom: 1px solid #eee; padding-bottom: 5px;
+        }
+
+        /* Menu Section */
+        .section-title {
+            text-align: center; margin: 25px 0 15px;
+            color: var(--color-dark); font-weight: bold; font-size: 18px;
+            display: flex; align-items: center; justify-content: center; gap: 10px;
+        }
+        .section-title::before, .section-title::after {
+            content: ""; height: 1px; width: 30px; background: #ccc;
+        }
+
+        .menu-grid { display: grid; grid-template-columns: 1fr; gap: 12px; }
+        @media(min-width: 600px) { .menu-grid { grid-template-columns: 1fr 1fr; } }
+
+        .menu-item {
+            background: white; padding: 15px; border-radius: 12px;
+            display: flex; justify-content: space-between; align-items: center;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+        
+        .item-info { flex: 1; padding-right: 10px; }
+        .item-name { font-weight: bold; font-size: 16px; color: #222; }
+        .item-price { color: var(--color-main); font-weight: bold; margin-top: 4px; }
+        .badge { 
+            font-size: 10px; padding: 2px 6px; border-radius: 4px; 
+            background: #eee; color: #555; margin-left: 5px; vertical-align: middle;
+        }
+
+        /* Qty Controls */
+        .qty-box {
+            display: flex; align-items: center;
+            background: #f5f5f5; border-radius: 25px; padding: 3px;
+        }
+        .qty-btn {
+            width: 32px; height: 32px; border-radius: 50%; border: none;
+            background: white; color: var(--color-main);
+            font-size: 18px; font-weight: bold; cursor: pointer;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+        }
+        .qty-val { width: 30px; text-align: center; font-weight: bold; font-size: 15px; }
+        .has-qty .qty-btn { background: var(--color-main); color: white; }
+
+        /* Bottom Cart Bar */
+        .cart-bar {
+            position: fixed; bottom: 0; left: 0; width: 100%;
+            background: white; padding: 15px 20px;
+            box-shadow: 0 -4px 15px rgba(0,0,0,0.1);
+            z-index: 100;
+            display: flex; justify-content: space-between; align-items: center;
+        }
+        .cart-info { font-size: 13px; color: var(--color-dark); }
+        .cart-total { font-size: 20px; color: var(--color-main); font-weight: bold; }
+        .cart-note { font-size: 12px; color: #888; }
+        
+        .btn-checkout {
+            background: var(--color-main); color: white;
+            border: none; padding: 12px 25px; border-radius: 30px;
+            font-weight: bold; font-size: 15px; cursor: pointer;
+            display: flex; align-items: center; gap: 6px;
+            box-shadow: 0 4px 10px rgba(139, 94, 60, 0.3);
+        }
+
+        /* Modal & Inputs */
+        .modal {
+            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.6); z-index: 200;
+            justify-content: center; align-items: center; padding: 15px;
+        }
+        .modal-content {
+            background: white; width: 100%; max-width: 500px;
+            border-radius: 15px; padding: 20px;
+            display: flex; flex-direction: column; max-height: 90vh;
+        }
+        .modal-header {
+            font-weight: bold; font-size: 18px; margin-bottom: 15px;
+            text-align: center; border-bottom: 1px solid #eee; padding-bottom: 10px;
+            display: flex; justify-content: space-between; align-items: center;
+        }
+        .close-btn { background: none; border: none; font-size: 24px; color: #999; cursor: pointer; }
+
+        .form-group { margin-bottom: 12px; }
+        .form-label { display: block; font-size: 13px; font-weight: bold; color: #666; margin-bottom: 5px; }
+        .form-input {
+            width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 8px;
+            font-size: 15px; outline: none; background: #fafafa;
+        }
+        .radio-options { display: flex; gap: 10px; flex-wrap: wrap; }
+        .radio-opt {
+            flex: 1; padding: 10px; text-align: center; border: 1px solid #ddd;
+            border-radius: 8px; font-size: 13px; cursor: pointer; color: #666; white-space: nowrap;
+        }
+        .radio-opt.active {
+            background: #FDF2E9; border-color: var(--color-main); color: var(--color-main); font-weight: bold;
+        }
+
+        textarea {
+            width: 100%; height: 120px; padding: 10px; 
+            border: 1px solid #ddd; border-radius: 8px;
+            font-size: 14px; resize: none; background: #fafafa;
+        }
+        .btn-confirm {
+            background: var(--color-main); color: white;
+            border: none; padding: 14px; border-radius: 8px;
+            font-weight: bold; font-size: 16px; width: 100%; margin-top: 10px; cursor: pointer;
+        }
+        #copyMsg { 
+            text-align: center; color: #2e7d32; font-weight: bold; 
+            margin-bottom: 10px; display: none; background: #e8f5e9; padding: 8px; border-radius: 6px;
+        }
+
+    </style>
+</head>
+<body>
+
+<header>
+    <h1>CANELé du Quai 烙角</h1>
+    <p>可麗露宅配預訂</p>
+</header>
+
+<div class="container">
+    
+    <div class="notice-card">
+        <div class="notice-header"><i class="fa-solid fa-triangle-exclamation"></i> 重要異動</div>
+        <div>
+            • 僅能<span class="highlight">「週五/六寄出」</span>。<br>
+            • 結單時間：<span class="highlight">每週一 下午 2:00</span>。<br>
+            • 逾時順延至下週。
+        </div>
+    </div>
+
+    <!-- 運費規則 (純文字) -->
+    <div class="rules-card">
+        <div class="rules-title"><i class="fa-solid fa-truck-fast"></i> 運費計價說明</div>
+        <div style="margin-bottom: 10px;">
+            <span class="highlight">運費 $170~$290 不等，須依訂購數量而定。</span><br>
+            🔺可麗露以黑貓冷凍配送，收到後須立即冷凍。
+        </div>
+        <div style="background: #f8f8f8; padding: 10px; border-radius: 8px;">
+            <strong>運費參考：</strong><br>
+            • 1-4 盒 (不含紙盒約 1-40 顆)：<span class="highlight">$170</span><br>
+            • 5-8 盒：<span class="highlight">$245</span><br>
+            • 6 盒以上另計
+        </div>
+    </div>
+
+    <div class="section-title"><i class="fa-solid fa-cookie-bite"></i> 選擇可麗露</div>
+    <div class="menu-grid" id="menu-canele"></div>
+
+    <div class="section-title"><i class="fa-solid fa-gift"></i> 包裝加購</div>
+    <div class="menu-grid" id="menu-addon"></div>
+
+</div>
+
+<!-- 底部購物車 -->
+<div class="cart-bar">
+    <div>
+        <div class="cart-info">已選 <span id="total-qty">0</span> 樣商品</div>
+        <div class="cart-total">$<span id="items-price">0</span> <span class="cart-note">(運費另計)</span></div>
+    </div>
+    <button class="btn-checkout" onclick="openModal()">
+        <i class="fa-regular fa-paper-plane"></i> 填寫宅配單
+    </button>
+</div>
+
+<!-- 彈窗 -->
+<div id="modal" class="modal">
+    <!-- 步驟1: 填寫資料 -->
+    <div class="modal-content" id="form-step">
+        <div class="modal-header">
+            <span>填寫宅配資訊</span>
+            <button class="close-btn" onclick="closeModal()">&times;</button>
+        </div>
+
+        <div style="flex:1; overflow-y:auto; padding-right:5px;">
+            <div class="form-group">
+                <label class="form-label">訂購人姓名</label>
+                <input type="text" id="inputName" class="form-input" placeholder="請輸入姓名">
+            </div>
+            <div class="form-group">
+                <label class="form-label">訂購人電話</label>
+                <input type="tel" id="inputPhone" class="form-input" placeholder="請輸入電話">
+            </div>
+            
+            <hr style="border:0; border-top:1px dashed #ddd; margin:15px 0;">
+
+            <div class="form-group">
+                <label class="form-label">收貨人姓名 (若同訂購人可免填)</label>
+                <input type="text" id="inputRcptName" class="form-input" placeholder="收件人姓名">
+            </div>
+            <div class="form-group">
+                <label class="form-label">收貨人電話</label>
+                <input type="tel" id="inputRcptPhone" class="form-input" placeholder="收件人電話">
+            </div>
+            <div class="form-group">
+                <label class="form-label">宅配地址 (含郵遞區號)</label>
+                <input type="text" id="inputAddress" class="form-input" placeholder="請輸入完整地址">
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label">希望收貨時段 (週日不配送)</label>
+                <div class="radio-options">
+                    <div class="radio-opt active" id="time-any" onclick="setTime('不指定')">不指定</div>
+                    <div class="radio-opt" id="time-13" onclick="setTime('13時前')">13時前</div>
+                    <div class="radio-opt" id="time-1418" onclick="setTime('14-18時')">14-18時</div>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">備註</label>
+                <input type="text" id="inputNote" class="form-input" placeholder="其他需求">
+            </div>
+        </div>
+
+        <button class="btn-confirm" onclick="generateAndShowText()">
+            下一步：預覽訂單
+        </button>
+    </div>
+
+    <!-- 步驟2: 預覽與複製 -->
+    <div class="modal-content" id="preview-step" style="display:none;">
+        <div class="modal-header">
+            <span>確認訂單內容</span>
+            <button class="close-btn" onclick="backToForm()"><i class="fa-solid fa-arrow-left"></i></button>
+        </div>
+        
+        <div id="copyMsg">✅ 已複製！請切換至訊息欄貼上</div>
+        <textarea id="finalText" readonly></textarea>
+        
+        <div style="font-size:12px; color:#888; margin-top:5px; text-align:center;">
+            *請複製後回傳，收到匯款帳號才算成立
+        </div>
+
+        <button class="btn-confirm" onclick="copyText()">
+            一鍵複製並關閉
+        </button>
+    </div>
+</div>
+
+<script>
+    const caneleData = [
+        { id: 'c1', name: '經典原味', price: 90 },
+        { id: 'c2', name: '山溫焦糖梅鹽', price: 95, badge: '人氣' },
+        { id: 'c3', name: '小綠(抹茶南瓜子)', price: 95 },
+        { id: 'c4', name: '秋暖 (紅茶拿鐵)', price: 95 }
+    ];
+
+    const addonData = [
+        { id: 'a1', name: '經典紙盒 (裝4顆)', price: 25 },
+        { id: 'a2', name: '手提紙袋 (裝3盒)', price: 10 },
+        { id: 'a3', name: '小牛皮紙袋 (裝6顆)', price: 2 }
+    ];
+
+    let cart = {};
+    let selectedTime = '不指定';
+
+    function init() {
+        renderMenu('menu-canele', caneleData);
+        renderMenu('menu-addon', addonData);
+    }
+
+    function renderMenu(containerId, data) {
+        const container = document.getElementById(containerId);
+        let html = '';
+        data.forEach(item => {
+            let badgeHtml = item.badge ? `<span class="badge">${item.badge}</span>` : '';
+            html += `
+                <div class="menu-item">
+                    <div class="item-info">
+                        <div class="item-name">${item.name} ${badgeHtml}</div>
+                        <div class="item-price">$${item.price}</div>
+                    </div>
+                    <div class="qty-box" id="box-${item.id}">
+                        <button class="qty-btn" onclick="updateQty('${item.id}', -1)">-</button>
+                        <div class="qty-val" id="val-${item.id}">0</div>
+                        <button class="qty-btn" onclick="updateQty('${item.id}', 1)">+</button>
+                    </div>
+                </div>
+            `;
+        });
+        container.innerHTML = html;
+    }
+
+    function updateQty(id, delta) {
+        if (!cart[id]) cart[id] = 0;
+        cart[id] += delta;
+        if (cart[id] < 0) cart[id] = 0;
+
+        document.getElementById(`val-${id}`).innerText = cart[id];
+        const box = document.getElementById(`box-${id}`);
+        if (cart[id] > 0) box.classList.add('has-qty');
+        else box.classList.remove('has-qty');
+
+        updateCartTotal();
+    }
+
+    function updateCartTotal() {
+        let itemsTotal = 0; 
+        let totalQty = 0;
+
+        // 計算
+        [...caneleData, ...addonData].forEach(item => {
+            const count = cart[item.id] || 0;
+            itemsTotal += count * item.price;
+            totalQty += count;
+        });
+
+        // 更新介面 (只顯示商品金額)
+        document.getElementById('items-price').innerText = itemsTotal;
+        document.getElementById('total-qty').innerText = totalQty;
+    }
+
+    function setTime(time) {
+        selectedTime = time;
+        document.getElementById('time-any').className = time === '不指定' ? 'radio-opt active' : 'radio-opt';
+        document.getElementById('time-13').className = time === '13時前' ? 'radio-opt active' : 'radio-opt';
+        document.getElementById('time-1418').className = time === '14-18時' ? 'radio-opt active' : 'radio-opt';
+    }
+
+    function generateAndShowText() {
+        let itemsStr = "";
+        let packageStr = "";
+        let hasItem = false;
+
+        caneleData.forEach(item => {
+            const count = cart[item.id] || 0;
+            if (count > 0) {
+                itemsStr += `[${item.name} * ${count}]\n`;
+                hasItem = true;
+            }
+        });
+
+        addonData.forEach(item => {
+            const count = cart[item.id] || 0;
+            if (count > 0) {
+                packageStr += `[${item.name} * ${count}]\n`;
+                hasItem = true;
+            }
+        });
+
+        if (!hasItem) {
+            alert("請至少選擇一樣商品喔！");
+            return;
+        }
+
+        const name = document.getElementById('inputName').value.trim();
+        const phone = document.getElementById('inputPhone').value.trim();
+        const rcptName = document.getElementById('inputRcptName').value.trim();
+        const rcptPhone = document.getElementById('inputRcptPhone').value.trim();
+        const address = document.getElementById('inputAddress').value.trim();
+        const note = document.getElementById('inputNote').value.trim();
+
+        if (!name || !phone || !address) {
+            alert("請填寫必填資訊（姓名、電話、地址）");
+            return;
+        }
+
+        const finalRcptName = rcptName ? rcptName : name;
+        const finalRcptPhone = rcptPhone ? rcptPhone : phone;
+        const noteText = note ? note : '無';
+        const itemsPrice = document.getElementById('items-price').innerText;
+
+        const finalText = `【 烙角 - 可麗露宅配預訂單 】
+
+預購品項/數量：
+${itemsStr}
+加購包裝：
+${packageStr || "無"}
+
+訂購人姓名：${name}
+聯絡電話：${phone}
+
+取（收）貨人：${finalRcptName}
+取（收）貨聯絡電話：${finalRcptPhone}
+
+宅配收貨地址：
+${address}
+
+收貨時段：${selectedTime}
+
+備註：${noteText}
+
+--------------
+商品小計：$${itemsPrice}
+運費：另計 (依數量$170~$290不等)
+總金額：(待確認運費後合計)
+—————————————
+*皆須「完成匯款」並收到烙角回覆，訂單才算成立。`;
+
+        document.getElementById('finalText').value = finalText;
+        
+        document.getElementById('form-step').style.display = 'none';
+        document.getElementById('preview-step').style.display = 'flex';
+    }
+
+    function backToForm() {
+        document.getElementById('preview-step').style.display = 'none';
+        document.getElementById('form-step').style.display = 'flex';
+    }
+
+    function copyText() {
+        const textArea = document.getElementById('finalText');
+        textArea.select();
+        textArea.setSelectionRange(0, 99999);
+        try {
+            document.execCommand('copy');
+            showSuccess();
+        } catch (err) {
+            if(navigator.clipboard) {
+                navigator.clipboard.writeText(textArea.value).then(showSuccess);
+            }
+        }
+    }
+
+    function showSuccess() {
+        const msg = document.getElementById('copyMsg');
+        msg.style.display = 'block';
+        setTimeout(() => { msg.style.display = 'none'; }, 2000);
+    }
+
+    function openModal() {
+        const price = document.getElementById('items-price').innerText;
+        if (parseInt(price) === 0) {
+            alert("購物車是空的，請先選擇商品！");
+            return;
+        }
+        document.getElementById('modal').style.display = 'flex';
+        document.getElementById('form-step').style.display = 'flex';
+        document.getElementById('preview-step').style.display = 'none';
+    }
+
+    function closeModal() {
+        document.getElementById('modal').style.display = 'none';
+    }
+
+    window.onclick = function(e) {
+        if(e.target == document.getElementById('modal')) closeModal();
+    }
+
+    init();
+</script>
+</body>
+</html>
